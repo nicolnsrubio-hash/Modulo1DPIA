@@ -1,0 +1,112 @@
+# Docker Compose para Detector de Neumonía con IA
+# Universidad Autónoma de Occidente - Módulo 1
+# 
+# Uso:
+#   docker-compose up --build
+#   docker-compose run --rm neumonia-detector bash
+#   docker-compose down
+
+version: '3.8'
+
+services:
+  neumonia-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neumonia-detector
+    
+    # Variables de entorno
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.docker.xauth
+      - TZ=America/Bogota
+    
+    # Volúmenes para persistencia y X11
+    volumes:
+      # X11 forwarding (Linux)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # Datos del proyecto
+      - ./data:/app/data:rw
+      - ./reports:/app/reports:rw
+      - ./models:/app/models:rw
+      # Configuración X11 (opcional)
+      - ~/.Xauthority:/tmp/.docker.xauth:ro
+    
+    # Red del host para X11 (Linux)
+    network_mode: host
+    
+    # Opciones adicionales
+    stdin_open: true
+    tty: true
+    
+    # Comando por defecto
+    command: ["python3.9", "detector_neumonia.py"]
+    
+    # Reinicio automático
+    restart: unless-stopped
+    
+    # Límites de recursos (opcional)
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Servicio para desarrollo y testing
+  neumonia-dev:
+    extends:
+      service: neumonia-detector
+    container_name: neumonia-dev
+    command: ["bash"]
+    volumes:
+      # Montar código fuente para desarrollo
+      - .:/app:rw
+      - ./data:/app/data:rw
+      - ./reports:/app/reports:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    profiles:
+      - dev
+
+  # Servicio para ejecutar tests
+  neumonia-test:
+    extends:
+      service: neumonia-detector
+    container_name: neumonia-test
+    command: ["python3.9", "-m", "pytest", "data-science-project/tests/", "-v"]
+    volumes:
+      - .:/app:rw
+    profiles:
+      - test
+
+  # Servicio con Jupyter para análisis (opcional)
+  neumonia-jupyter:
+    extends:
+      service: neumonia-detector
+    container_name: neumonia-jupyter
+    command: ["python3.9", "-m", "jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app:rw
+      - ./data:/app/data:rw
+      - ./data-science-project/notebooks:/app/notebooks:rw
+    profiles:
+      - jupyter
+
+# Red personalizada (si no se usa host)
+networks:
+  neumonia-net:
+    driver: bridge
+
+# Volúmenes nombrados para persistencia
+volumes:
+  neumonia-data:
+    driver: local
+  neumonia-models:
+    driver: local
+  neumonia-reports:
+    driver: local

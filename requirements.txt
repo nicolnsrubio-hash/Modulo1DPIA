@@ -1,10 +1,70 @@
-pyautogui
-pillow
-tkcap
-pydicom
-img2pdf
-opencv_python
-matplotlib
-pandas
-tensorflow
-python-xlib
+# Requisitos del Sistema de Detección de Neumonía con IA
+# Python 3.9+ requerido
+
+# === CORE DEPENDENCIES ===
+# Deep Learning y Machine Learning
+tensorflow==2.15.0
+keras==2.15.0
+numpy==1.24.3
+scipy==1.11.4
+
+# Procesamiento de Imágenes
+opencv-python==4.8.1.78
+Pillow==10.0.1
+scikit-image==0.22.0
+
+# Imágenes Médicas
+pydicom==2.4.3
+nibabel==5.1.0
+
+# === GUI Y VISUALIZACIÓN ===
+# Interfaz Gráfica (Tkinter viene con Python)
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# Captura de Pantalla y PDFs
+pyautogui==0.9.54
+ImageGrab  # Parte de PIL
+img2pdf==0.4.4
+
+# === ANÁLISIS DE DATOS ===
+pandas==2.1.4
+
+# === TESTING Y DESARROLLO ===
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+
+# === UTILIDADES ===
+# Type hints y validación
+typing-extensions==4.8.0
+pydantic==2.5.1
+
+# Logging y configuración
+colorlog==6.8.0
+python-dotenv==1.0.0
+
+# === COMPATIBILIDAD ===
+# Para sistemas Linux (opcional)
+python-xlib==0.33; sys_platform == "linux"
+
+# Librería tkcap (puede no estar disponible en todos los sistemas)
+# tkcap  # Comentado - usar implementación alternativa
+
+# === DESARROLLO Y LINTING ===
+# Para desarrollo (opcional)
+black==23.11.0
+flake8==6.1.0
+isort==5.12.0
+mypy==1.7.1
+
+# === JUPYTER NOTEBOOKS ===
+# Para análisis y experimentación
+jupyter==1.0.0
+jupyterlab==4.0.9
+ipykernel==6.26.0
+
+# === DOCUMENTACIÓN ===
+# Para generar documentación
+sphinx==7.2.6
+sphinx-rtd-theme==1.3.0

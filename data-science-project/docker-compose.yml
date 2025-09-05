@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  pneumonia-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: uao/pneumonia-detector:latest
+    container_name: pneumonia-detector-app
+    
+    # Configuración de recursos
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+    
+    # Variables de entorno
+    environment:
+      - PYTHONPATH=/app
+      - TF_CPP_MIN_LOG_LEVEL=2
+      - CUDA_VISIBLE_DEVICES=-1  # Usar solo CPU por defecto
+    
+    # Volúmenes para persistencia de datos
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models  # Para archivos de modelo
+      - ./logs:/app/logs      # Para logs de aplicación
+      - pneumonia_cache:/app/temp  # Cache temporal
+    
+    # Puerto de aplicación web (si se implementa)
+    ports:
+      - "5000:5000"
+    
+    # Comando para ejecutar pruebas por defecto
+    command: ["python", "-m", "pytest", "tests/", "-v", "--tb=short"]
+    
+    # Configuración de red
+    networks:
+      - pneumonia-network
+    
+    # Política de reinicio
+    restart: unless-stopped
+    
+    # Verificación de salud del contenedor
+    healthcheck:
+      test: ["CMD", "python", "-c", "import tensorflow as tf; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio adicional para desarrollo (opcional)
+  pneumonia-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: uao/pneumonia-detector:latest
+    container_name: pneumonia-detector-dev
+    
+    environment:
+      - PYTHONPATH=/app
+      - TF_CPP_MIN_LOG_LEVEL=1
+    
+    volumes:
+      - .:/app  # Montar código en tiempo real para desarrollo
+      - pneumonia_dev_cache:/app/temp
+    
+    ports:
+      - "5001:5000"
+      - "8888:8888"  # Para Jupyter Lab
+    
+    # Modo interactivo para desarrollo
+    command: ["bash"]
+    stdin_open: true
+    tty: true
+    
+    networks:
+      - pneumonia-network
+    
+    profiles:
+      - dev  # Solo se ejecuta con --profile dev
+
+# Volúmenes nombrados
+volumes:
+  pneumonia_cache:
+    driver: local
+  pneumonia_dev_cache:
+    driver: local
+
+# Red personalizada
+networks:
+  pneumonia-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

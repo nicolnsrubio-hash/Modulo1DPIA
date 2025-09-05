@@ -127,3 +127,46 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# ==========================================
+# PROYECTO NEUMONIA - EXCLUSIONES ESPECÍFICAS
+# ==========================================
+
+# Modelos de ML - NO VERSIONAR (Requisito Módulo 1)
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+conv_MLP_84.h5
+WilhemNet86.h5
+
+# Datos - NO VERSIONAR
+data/raw/*
+data/processed/*
+data/external/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
+
+# Reportes y archivos generados
+Reporte*.pdf
+Reporte*.jpg
+historial.csv
+
+# Virtual environments adicionales
+venv311/
+.venv/
+
+# Archivos temporales del proyecto
+*.zip
+extract_pdf.py
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de configuración local
+.env.local
+config.local.py
